@@ -7,8 +7,7 @@ services:
       - "6379:6379"
 
   sidekiq-1st-instance:
-    build:
-      dockerfile: Dockerfile
+    build: .
     command: ./bin/container/run ./app/config/sidekiq/1st_instance.yml
     container_name: sidekiq-1st-instance
     environment:
@@ -17,8 +16,7 @@ services:
       - redis
 
   sidekiq-2nd-instance:
-    build:
-      dockerfile: Dockerfile
+    build: .
     command: ./bin/container/run ./app/config/sidekiq/2nd_instance.yml
     container_name: sidekiq-2nd-instance
     environment:
@@ -27,8 +25,7 @@ services:
       - redis
 
   sidekiq-3rd-instance:
-    build:
-      dockerfile: Dockerfile
+    build: .
     command: ./bin/container/run ./app/config/sidekiq/3rd_instance.yml
     container_name: sidekiq-3rd-instance
     environment:
@@ -37,8 +34,7 @@ services:
       - redis
 
   ui:
-    build:
-      dockerfile: Dockerfile
+    build: .
     command: bundle exec rackup --host 0.0.0.0
     container_name: ui
     ports:
