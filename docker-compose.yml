@@ -1,0 +1,34 @@
+version: "0.0.1"
+services:
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  sidekiq-without-rails:
+    image: "sidekiq-without-rails"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./bin/container/run-sidekiq
+    container_name: "sidekiq-without-rails"
+    environment:
+      REDIS_URL: redis://redis:6379
+      SIDEKIQ_CONCURRENCY: 5
+    depends_on:
+      - redis
+      - sidekiq-without-rails-2nd-instance
+
+  sidekiq-without-rails-2nd-instance:
+    image: "sidekiq-without-rails-2nd-instance"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./bin/container/run-sidekiq
+    container_name: "sidekiq-without-rails-2nd-instance"
+    environment:
+      REDIS_URL: redis://redis:6379
+      SIDEKIQ_CONCURRENCY: 5
+    depends_on:
+      - redis

@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+exec bundle exec sidekiq -r ./app/config/application.rb -C ./app/config/sidekiq.yml
