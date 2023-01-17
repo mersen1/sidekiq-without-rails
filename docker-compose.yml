@@ -6,29 +6,32 @@ services:
     ports:
       - "6379:6379"
 
-  sidekiq-without-rails:
-    image: "sidekiq-without-rails"
+  sidekiq-1st-instance:
     build:
-      context: .
       dockerfile: Dockerfile
-    command: ./bin/container/run-sidekiq
-    container_name: "sidekiq-without-rails"
+    command: ./bin/container/run-sidekiq ./app/config/sidekiq/1st_instance.yml
+    container_name: sidekiq-1st-instance
     environment:
       REDIS_URL: redis://redis:6379
-      SIDEKIQ_CONCURRENCY: 5
     depends_on:
       - redis
-      - sidekiq-without-rails-2nd-instance
 
-  sidekiq-without-rails-2nd-instance:
-    image: "sidekiq-without-rails-2nd-instance"
+  sidekiq-2nd-instance:
     build:
-      context: .
       dockerfile: Dockerfile
-    command: ./bin/container/run-sidekiq
-    container_name: "sidekiq-without-rails-2nd-instance"
+    command: ./bin/container/run-sidekiq ./app/config/sidekiq/2nd_instance.yml
+    container_name: sidekiq-2nd-instance
     environment:
       REDIS_URL: redis://redis:6379
-      SIDEKIQ_CONCURRENCY: 5
+    depends_on:
+      - redis
+
+  sidekiq-3rd-instance:
+    build:
+      dockerfile: Dockerfile
+    command: ./bin/container/run-sidekiq ./app/config/sidekiq/3rd_instance.yml
+    container_name: sidekiq-3rd-instance
+    environment:
+      REDIS_URL: redis://redis:6379
     depends_on:
       - redis

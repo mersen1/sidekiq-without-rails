@@ -1,3 +1,8 @@
 #!/usr/bin/env sh
 
-exec bundle exec sidekiq -r ./app/config/application.rb -C ./app/config/sidekiq.yml
+if [ ! -f "$1" ]; then
+    echo "Config file was not provided"
+    exit 1
+fi
+
+exec bundle exec sidekiq -r ./app/config/application.rb -C "$1"
