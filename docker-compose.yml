@@ -9,7 +9,7 @@ services:
   sidekiq-1st-instance:
     build:
       dockerfile: Dockerfile
-    command: ./bin/container/run-sidekiq ./app/config/sidekiq/1st_instance.yml
+    command: ./bin/container/run ./app/config/sidekiq/1st_instance.yml
     container_name: sidekiq-1st-instance
     environment:
       REDIS_URL: redis://redis:6379
@@ -19,7 +19,7 @@ services:
   sidekiq-2nd-instance:
     build:
       dockerfile: Dockerfile
-    command: ./bin/container/run-sidekiq ./app/config/sidekiq/2nd_instance.yml
+    command: ./bin/container/run ./app/config/sidekiq/2nd_instance.yml
     container_name: sidekiq-2nd-instance
     environment:
       REDIS_URL: redis://redis:6379
@@ -29,9 +29,25 @@ services:
   sidekiq-3rd-instance:
     build:
       dockerfile: Dockerfile
-    command: ./bin/container/run-sidekiq ./app/config/sidekiq/3rd_instance.yml
+    command: ./bin/container/run ./app/config/sidekiq/3rd_instance.yml
     container_name: sidekiq-3rd-instance
     environment:
       REDIS_URL: redis://redis:6379
     depends_on:
       - redis
+
+  ui:
+    build:
+      dockerfile: Dockerfile
+    command: bundle exec rackup --host 0.0.0.0
+    container_name: ui
+    ports:
+      - "9292:9292"
+    environment:
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+      - sidekiq-1st-instance
+      - sidekiq-2nd-instance
+      - sidekiq-3rd-instance
+

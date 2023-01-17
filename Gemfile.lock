@@ -9,6 +9,11 @@ GEM
     parser (3.2.0.0)
       ast (~> 2.4.1)
     rack (3.0.4)
+    rack-session (0.3.0)
+      rack (>= 3.0.0.beta1)
+    rackup (0.2.3)
+      rack (>= 3.0.0.beta1)
+      webrick
     rainbow (3.1.1)
     redis-client (0.12.1)
       connection_pool
@@ -33,11 +38,15 @@ GEM
       rack (>= 2.2.4)
       redis-client (>= 0.11.0)
     unicode-display_width (2.4.2)
+    webrick (1.7.0)
 
 PLATFORMS
   universal-darwin-22
 
 DEPENDENCIES
+  rack
+  rack-session
+  rackup
   rubocop
   sidekiq (~> 7.0)
 
