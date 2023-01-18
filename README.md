@@ -1,4 +1,4 @@
-To run SideKiq in 3 processes you need:
+To run `SideKiq` in <ins>3 processes</ins> you need:
 
 ```bash
 docker-compose build
