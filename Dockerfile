@@ -8,5 +8,3 @@ COPY Gemfile.lock /sidekiq-without-rails/Gemfile.lock
 RUN bundle install
 
 COPY . /sidekiq-without-rails
-
-CMD ["./bin/container/run"]
