@@ -5,7 +5,7 @@ WORKDIR /sidekiq-without-rails
 COPY Gemfile /sidekiq-without-rails/Gemfile
 COPY Gemfile.lock /sidekiq-without-rails/Gemfile.lock
 
-RUN apt-get update && bundle install
+RUN bundle install
 
 COPY . /sidekiq-without-rails
 
