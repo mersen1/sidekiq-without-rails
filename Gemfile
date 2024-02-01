@@ -2,10 +2,12 @@
 
 source 'https://rubygems.org'
 
-ruby '3.0.3'
+ruby '3.3.0'
 
 gem 'rack'
 gem 'rack-session'
 gem 'rackup'
-gem 'rubocop', require: false
-gem 'sidekiq', '~> 7.0'
+
+gem 'standard', group: %i[development test]
+
+gem 'sidekiq'

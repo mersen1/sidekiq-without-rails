@@ -1,2 +1,9 @@
 # Code Editors
 .idea
+
+# GIT
+.git
+
+# Docker files
+docker-compose.yml
+Dockerfile
