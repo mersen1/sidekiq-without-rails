@@ -3,16 +3,16 @@ kind: Deployment
 metadata:
   name: sidekiq-deployment
   labels:
-    app: sidekiq
+    app: sidekiq-deployment
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: sidekiq
+      app: sidekiq-deployment
   template:
     metadata:
       labels:
-        app: sidekiq
+        app: sidekiq-deployment
     spec:
       containers:
         - name: sidekiq
@@ -22,18 +22,4 @@ spec:
               value: "redis://redis-service:6379"
             - name: SIDEKIQ_CONCURRENCY
               value: "5"
-          ports:
-            - containerPort: 9292
-          command: ["./bin/container/run", "./app/config/sidekiq/1st_instance.yml"]
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: sidekiq-service
-spec:
-  selector:
-    app: sidekiq
-  ports:
-    - protocol: TCP
-      port: 9292
-      targetPort: 9292
+          command: ["./bin/run", "./app/config/sidekiq/k8s.yml"]
