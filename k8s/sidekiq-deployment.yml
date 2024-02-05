@@ -8,14 +8,14 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: sidekiq-deployment
+      app: sidekiq
   template:
     metadata:
       labels:
-        app: sidekiq-deployment
+        app: sidekiq
     spec:
       containers:
-        - name: sidekiq
+        - name: sidekiq-container
           image: mersen1/sidekiq-without-rails
           env:
             - name: REDIS_URL
