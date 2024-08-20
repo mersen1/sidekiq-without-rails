@@ -18,18 +18,21 @@ spec:
         - name: ui-container
           image: mersen1/sidekiq-without-rails
           env:
-            - name: REDIS_URL
-              value: "redis://redis-service:6379"
+            - name: REDIS_NODES
+              value: |
+                redis-cluster-0.redis-cluster:6379
+                redis-cluster-1.redis-cluster:6379
+                redis-cluster-2.redis-cluster:6379
+                redis-cluster-3.redis-cluster:6379
+                redis-cluster-4.redis-cluster:6379
+                redis-cluster-5.redis-cluster:6379
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
           ports:
             - containerPort: 9292
-          command: ["bundle", "exec", "rackup", "--host", "0.0.0.0"]
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 9292
-            initialDelaySeconds: 5
-            periodSeconds: 5
-
+          command: ["bundle", "exec", "rackup", "--host", "$(POD_IP)"]
 ---
 apiVersion: v1
 kind: Service
@@ -42,4 +45,3 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 9292
-
