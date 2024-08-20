@@ -3,12 +3,10 @@
 require 'sidekiq/web'
 require 'rack/session'
 
-redis_nodes = ENV.fetch('REDIS_NODES').split("\n").map { "redis://#{_1}" }
-
-Sidekiq.logger.info { [redis_nodes, ENV.fetch('REDIS_NODES')] }
+redis_url = "redis://#{ENV.fetch('REDIS_URL')}"
 
 Sidekiq.configure_client do |config|
-  config.redis = { url: redis_nodes }
+  config.redis = { url: redis_url }
 end
 
 secret = SecureRandom.hex(32)
