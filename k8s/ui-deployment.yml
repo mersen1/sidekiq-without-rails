@@ -19,8 +19,10 @@ spec:
         - name: ui-container
           image: mersen1/sidekiq-without-rails:latest
           env:
-            - name: REDIS_URL
-              value: "redis-cluster-$(HOSTNAME).redis-cluster:6379"
+            - name: REDIS_SENTINELS
+              value: "redis-sentinel:26379"
+            - name: REDIS_MASTER_NAME
+              value: "master"
             - name: POD_IP
               valueFrom:
                 fieldRef:

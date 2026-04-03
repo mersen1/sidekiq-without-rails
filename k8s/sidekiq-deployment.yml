@@ -19,8 +19,10 @@ spec:
         - name: sidekiq-container
           image: mersen1/sidekiq-without-rails:latest
           env:
-            - name: REDIS_URL
-              value: "redis-cluster-$(HOSTNAME).redis-cluster:6379"
+            - name: REDIS_SENTINELS
+              value: "redis-sentinel:26379"
+            - name: REDIS_MASTER_NAME
+              value: "master"
             - name: SIDEKIQ_CONCURRENCY
               value: "5"
           command: ["./bin/run", "./app/config/sidekiq/k8s.yml"]

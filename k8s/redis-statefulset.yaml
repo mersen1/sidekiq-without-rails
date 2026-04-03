@@ -1,21 +1,37 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: redis-cluster-config
+  name: redis-config
 data:
   redis.conf: |
-    cluster-enabled yes
-    cluster-config-file /data/nodes.conf
-    cluster-node-timeout 5000
     appendonly yes
+  sentinel.conf: |
+    sentinel monitor master redis-0.redis 6379 2
+    sentinel down-after-milliseconds master 5000
+    sentinel failover-timeout master 10000
+    sentinel parallel-syncs master 1
+    sentinel resolve-hostnames yes
+    sentinel announce-hostnames yes
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  clusterIP: None
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: redis-cluster
+  name: redis
 spec:
-  serviceName: redis-cluster
-  replicas: 6
+  serviceName: redis
+  replicas: 3
   selector:
     matchLabels:
       app: redis
@@ -24,17 +40,32 @@ spec:
       labels:
         app: redis
     spec:
+      initContainers:
+        - name: init-redis
+          image: redis:7.0
+          command: ["sh", "-c"]
+          args:
+            - |
+              cp /mnt/redis.conf /etc/redis/redis.conf
+              echo "replica-announce-ip $(hostname).redis" >> /etc/redis/redis.conf
+              echo "replica-announce-port 6379" >> /etc/redis/redis.conf
+              if [ "$(hostname)" != "redis-0" ]; then
+                echo "replicaof redis-0.redis 6379" >> /etc/redis/redis.conf
+              fi
+          volumeMounts:
+            - name: config-map
+              mountPath: /mnt
+            - name: redis-config
+              mountPath: /etc/redis
       containers:
         - name: redis
           image: redis:7.0
-          command:
-            - "redis-server"
-            - "/redis-conf/redis.conf"
+          command: ["redis-server", "/etc/redis/redis.conf"]
           ports:
             - containerPort: 6379
           volumeMounts:
-            - name: config
-              mountPath: /redis-conf
+            - name: redis-config
+              mountPath: /etc/redis
             - name: data
               mountPath: /data
           resources:
@@ -42,21 +73,69 @@ spec:
               memory: "256Mi"
               cpu: "500m"
       volumes:
-        - name: config
+        - name: config-map
           configMap:
-            name: redis-cluster-config
-        - name: data
+            name: redis-config
+        - name: redis-config
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-sentinel
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: redis-sentinel
+  template:
+    metadata:
+      labels:
+        app: redis-sentinel
+    spec:
+      initContainers:
+        - name: init-sentinel
+          image: redis:7.0
+          command: ["sh", "-c"]
+          args:
+            - |
+              cp /mnt/sentinel.conf /etc/redis/sentinel.conf
+          volumeMounts:
+            - name: config-map
+              mountPath: /mnt
+            - name: sentinel-config
+              mountPath: /etc/redis
+      containers:
+        - name: sentinel
+          image: redis:7.0
+          command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
+          ports:
+            - containerPort: 26379
+          volumeMounts:
+            - name: sentinel-config
+              mountPath: /etc/redis
+      volumes:
+        - name: config-map
+          configMap:
+            name: redis-config
+        - name: sentinel-config
           emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-cluster
+  name: redis-sentinel
 spec:
-  clusterIP: None
   selector:
-    app: redis
+    app: redis-sentinel
   ports:
-    - protocol: TCP
-      port: 6379
-      targetPort: 6379
+    - port: 26379
+      targetPort: 26379
